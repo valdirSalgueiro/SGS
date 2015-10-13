@@ -8,19 +8,20 @@
 #endif
 
 const unsigned int jetclaw_texcoords[] = {
-0,0,493,239, // 0        jetclaw0007.png
-495,0,493,239, // 1      jetclaw0005.png
-495,0,493,239, // 2      jetclaw0006.png
-0,241,493,239, // 3      jetclaw0004.png
-495,241,493,239, // 4    jetclaw0003.png
-0,482,493,239, // 5      jetclaw0002.png
-0,723,493,239, // 6      jetclaw0001.png
+	0,0,493,239, // 0        jetclaw0007.png
+	495,0,493,239, // 1      jetclaw0005.png
+	495,0,493,239, // 2      jetclaw0006.png
+	0,241,493,239, // 3      jetclaw0004.png
+	495,241,493,239, // 4    jetclaw0003.png
+	0,482,493,239, // 5      jetclaw0002.png
+	0,723,493,239, // 6      jetclaw0001.png
 };
 
 extern std::vector<Object*> objs;
 
-
 int jetclawAnimation=0;
+
+
 
 #ifdef WIN32
 //extern sound* alienTiro1;
@@ -48,7 +49,7 @@ Jetclaw::Jetclaw(){
 #else
 	bp = new BulletMLParserTinyXML(bulletPattern);
 #endif
-    bp->build();
+	bp->build();
 
 
 }
@@ -62,8 +63,7 @@ void Jetclaw::loadTextures(){
 }
 
 bool Jetclaw::update(float time) {
-	pos+=dir; 
-	loops++; 
+	Enemy::update(time);
 
 
 	if(loops%4==0)
@@ -86,7 +86,7 @@ bool Jetclaw::update(float time) {
 				isAlive=false;
 			}
 		}
-			
+
 	}else{
 		if(color<2)
 			pos=catmullRomSpline(x,oldPosition,oldPosition,path.at(pathIter),path.at(pathIter));		 
@@ -97,7 +97,7 @@ bool Jetclaw::update(float time) {
 
 	if(loops%180==0){
 #ifdef WIN32
-//		alienTiro1->play();
+		//		alienTiro1->play();
 #else
 		JNIUtil::jni_sound_play(alienTiro1);
 #endif
@@ -108,31 +108,38 @@ bool Jetclaw::update(float time) {
 	life--;
 
 
-
 	Aabb.Init( pos.x/2 - sprJetclaw[jetclawAnimation].width/4, pos.y/2 - sprJetclaw[jetclawAnimation].height/4,   sprJetclaw[jetclawAnimation].width/2, sprJetclaw[jetclawAnimation].height/2  );
 	return true;
 }
 
 
-bool Jetclaw::render(float time){
-	if(color==0){
-		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,83,83,83,100,43.0f/255.0f);
 
-	}
-	else if(color==1){
-		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,83,83,83,100,0,43.0f/255.0f);
-	}
-	else if(color==2){
-		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,83,83,83,100,0,0,43.0f/255.0f);
+
+bool Jetclaw::render(float time){
+	if(wasHurt){
+		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,0,0,0,100,1,1,1);
 	}
 	else{
-		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_NORMAL,&sprJetclaw[jetclawAnimation]);
+		if(color==0){
+			glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,0,0,0,100,43.0f/255.0f);
+
+		}
+		else if(color==1){
+			glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,0,0,0,100,0,43.0f/255.0f);
+		}
+		else if(color==2){
+			glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED|GL2D_NORMAL,&sprJetclaw[jetclawAnimation],false,0,1,1,0,0,255,100,0,0,43.0f/255.0f);
+		}
+		else{
+			glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_NORMAL,&sprJetclaw[jetclawAnimation]);
+		}
 	}
 	return true;
 }
 
 
 void Jetclaw::init(){
+	Enemy::init();
 	loops=0;
 	isAlive=true;
 	pos=path.at(0);
@@ -146,6 +153,7 @@ void Jetclaw::init(){
 
 	Aabb.Init( pos.x/2 - sprJetclaw[0].width/4, pos.y/2 - sprJetclaw[0].height/4,   sprJetclaw[0].width/2, sprJetclaw[0].height/2  );
 }
+
 
 void Jetclaw::cleanUp(){
 }

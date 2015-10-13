@@ -90,8 +90,7 @@ void Balloon::loadTextures(){
 
 
 bool Balloon::update(float time) {
-	pos+=dir; 
-	loops++; 
+	Enemy::update(time);
 
 	if(loops%5==0)
 		BalloonAnimation++;
@@ -154,7 +153,10 @@ bool Balloon::update(float time) {
 
 
 bool Balloon::render(float time){
-	glSprite(pos.x,pos.y,GL2D_CENTER,&sprBalloon[BalloonAnimation],false,0,2,2);
+	if(wasHurt)
+		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_COLOR_ADVANCED,&sprBalloon[BalloonAnimation],false,0,2,2,0,0,0,0,1,1,1,0);
+	else
+		glSprite(pos.x,pos.y,GL2D_CENTER,&sprBalloon[BalloonAnimation],false,0,2,2);
 	return true;
 }
 

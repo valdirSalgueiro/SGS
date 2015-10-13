@@ -8,18 +8,11 @@
 class Enemy{
 public:
 	Enemy(){
+		wasHurt=false;
 	}
 
 	virtual ~Enemy();
 
-	enum EnemyType{
-		NPC_TYPE,
-		BIG_RING,
-		TENTACLE,
-		RING_ORB,
-		RING_ORBS,
-		BUG_BOMB
-	};
 
 	virtual bool update(float time);
 	virtual bool render(float time)=0;
@@ -27,6 +20,8 @@ public:
 	virtual void cleanUp();
 	virtual bool collides(Vector2D<float> pos,Vector2D<float> size);
 	virtual void loadTextures()=0;
+
+	virtual void hurt();
 
 	Vector2D<float> pos;
 	Vector2D<float> dir;
@@ -42,9 +37,10 @@ public:
 
 	float radius;
 
-	EnemyType type;	
-
 	int energy;
+
+	bool wasHurt;
+	float hurtTimer;
 
 
 

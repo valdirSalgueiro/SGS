@@ -114,8 +114,7 @@ void Boss2::loadTextures(){
 
 
 bool Boss2::update(float time) {
-	pos+=dir; 
-	loops++; 
+	Enemy::update(time);
 
 	if(x>=1.0f){
 		x=0.0f;
@@ -185,7 +184,12 @@ bool Boss2::render(float time){
 	std::vector<Animation*>::iterator iter = animations.begin();
 	while (iter != animations.end())
 	{
-		glSprite(pos.x/2,pos.y/2,GL2D_CENTER | GL2D_NO_SCALE,&sprBoss2[boss2_sequence[(*iter)->currentFrame]]);
+		if(wasHurt){
+			glSprite(pos.x/2,pos.y/2,GL2D_CENTER | GL2D_NO_SCALE,&sprBoss2[boss2_sequence[(*iter)->currentFrame]],false,0,1,1,0,0,0,0,1,1,1,0);
+		}
+		else{
+			glSprite(pos.x/2,pos.y/2,GL2D_CENTER | GL2D_NO_SCALE,&sprBoss2[boss2_sequence[(*iter)->currentFrame]]);
+		}
 		iter++;
 	}
 	return true;

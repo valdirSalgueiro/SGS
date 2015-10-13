@@ -551,7 +551,7 @@ void Engine::update(float time){
 						if(enemies[i]->Aabb.Intersects(aabb)){						
 							if(enemies[i]->energy>0){
 								score++;
-								enemies[i]->energy--;
+								enemies[i]->hurt();
 								Animation* animation=new Animation();
 								animation->currentFrame=0;
 								animation->x=playerObjs[j]->x+sprBullet[3].width;
@@ -857,7 +857,6 @@ void Engine::render(float time){
 
 		player->render(time);
 
-		startBloom();
 		std::vector<Animation*>::iterator iter = animations.begin();
 		while (iter != animations.end())
 		{
@@ -875,7 +874,6 @@ void Engine::render(float time){
 			}
 			iter++;
 		}
-		endBloom();
 
 		glSprite(nuvemX,267,GL2D_NO_SCALE,nuvem1,0,0,1.0f,1.0f);
 

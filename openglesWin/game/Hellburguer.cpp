@@ -85,8 +85,7 @@ void Hellburguer::loadTextures(){
 }
 
 bool Hellburguer::update(float time) {
-	pos+=dir; 
-	loops++; 
+	Enemy::update(time);
 
 	if(loops%4==0)
 		hbAnimation++;
@@ -135,7 +134,12 @@ bool Hellburguer::update(float time) {
 
 
 bool Hellburguer::render(float time){
-	glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_NORMAL,&sprHB[hbAnimation]);
+	if(wasHurt){
+		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_NORMAL|GL2D_COLOR_ADVANCED,&sprHB[hbAnimation],false,0,1,1,0,0,0,0,1,1,1,0);
+	}
+	else{
+		glSprite(pos.x,pos.y,GL2D_CENTER|GL2D_NORMAL,&sprHB[hbAnimation]);
+	}
 	return true;
 }
 
