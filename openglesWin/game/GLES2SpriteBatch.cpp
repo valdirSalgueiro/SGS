@@ -208,6 +208,12 @@ FrameBuffer backBuffer;
 extern float playerX;
 extern float playerY;
 
+extern float elapsedTime;
+
+extern float shakeAmount;
+
+extern bool shakeScreen;
+
 
 GLES2SpriteBatch::GLES2SpriteBatch(int w, int h ) : SpriteBatch(w,h)
 {
@@ -593,6 +599,11 @@ void GLES2SpriteBatch::begin( int bmode, TransformMode dTransform, float *custom
 			0, 0, 1, 0,
 			0,0, 0, 1,
 		};
+		
+		if(shakeScreen){
+			mproj[3] += cos( ( elapsedTime / 0.1 ) * 2 * 3.14159 ) * shakeAmount;
+		}
+
 		memcpy( projectionMatrix, mproj, 16 * sizeof( GLfloat ));
 	}
 

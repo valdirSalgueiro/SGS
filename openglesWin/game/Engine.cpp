@@ -171,6 +171,8 @@ int frames;
 
 glImage* point;
 
+float elapsedTime=0.0;
+
 void addObj(Object* object) {
 	objs.push_back(object);
 }
@@ -216,6 +218,9 @@ int boss2Size=0;
 int boss=0;
 bool naveSoundPlayed;
 bool warningPlayed=false;
+
+bool shakeScreen=false;
+float shakeAmount=0.1;
 
 #ifdef WIN32
 //sound* explosion;
@@ -465,6 +470,16 @@ void Engine::deinit(){
 }
 
 void Engine::update(float time){
+	elapsedTime+=time;
+
+	if(shakeScreen && shakeAmount > 0.01){
+		shakeAmount*=0.9f;
+	}
+	else{
+		shakeAmount=0.1f;
+		shakeScreen=false;
+	}
+
 	if(gameState==LOGO1){
 		if(touch){
 			gameState=LOGO2;
@@ -505,6 +520,10 @@ void Engine::update(float time){
 
 				naveSoundPlayed=true;
 			}
+
+			if(frames%(120+rand()%300)==0)
+				shakeScreen=true;
+
 
 			if(frames%10==0){
 				Animation* animation=new Animation();
@@ -794,7 +813,7 @@ void Engine::render(float time){
 		spriteBatchBegin();		
 
 
-		glSprite(0,0,GL2D_SCALE_TO_SCREEN,fundo);
+		glSprite(-50,0,GL2D_SCALE_TO_SCREEN,fundo);
 
 		glSprite(670,100,GL2D_CENTER|GL2D_NO_SCALE,lua,0,0,0.5f,0.5f);
 
