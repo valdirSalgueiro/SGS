@@ -107,5 +107,9 @@ void spriteBatchDraw(int x, int y, int flipmode, const glImage *spr,bool rotate=
 
 void glFree();
 
+void startBloom();
+
+void endBloom();
+
 
 #endif // GL2D_H_INCLUDED
