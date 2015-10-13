@@ -128,17 +128,7 @@ const char* strSpriteBatchFragmentShaderColorAdvanced =
 
 	void main (void)
 	{
-	lowp vec4 colorFinal;
-	lowp float r_original=texture2D(sampler2d, texCoord).r;
-	lowp float g_original=texture2D(sampler2d, texCoord).g;
-	lowp float b_original=texture2D(sampler2d, texCoord).b;
-	lowp float a_original=texture2D(sampler2d, texCoord).a;
-
-	colorFinal.r = r_original * (vertexColor.r/100.0) + colorAdvanced.r;
-	colorFinal.g = g_original * (vertexColor.g/100.0) + colorAdvanced.g;
-	colorFinal.b = b_original * (vertexColor.b/100.0) + colorAdvanced.b;
-	colorFinal.a = a_original * (vertexColor.a/100.0) + colorAdvanced.a;
-
+	lowp vec4 colorFinal = texture2D(sampler2d, texCoord) + colorAdvanced;
 
 	gl_FragColor = colorFinal;
 	});
@@ -601,6 +591,7 @@ void GLES2SpriteBatch::begin( int bmode, TransformMode dTransform, float *custom
 		};
 		
 		if(shakeScreen){
+
 			mproj[3] += cos( ( elapsedTime / 0.1 ) * 2 * 3.14159 ) * shakeAmount;
 		}
 
@@ -626,6 +617,7 @@ void GLES2SpriteBatch::begin( int bmode, TransformMode dTransform, float *custom
 } 
 
 void GLES2SpriteBatch::startBloom(){
+	flushSprites();
 	glBindFramebuffer(GL_FRAMEBUFFER,backBuffer.buffer);
     glClear(GL_COLOR_BUFFER_BIT);
 } 
@@ -634,8 +626,13 @@ void GLES2SpriteBatch::endBloom(){
 	flushSprites();
 
 	bloom();
-		
-	currentProgram=-1;
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo );
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(GL_FLOAT),0);
+
+	currentTexture = 0;
+	currentProgram = -1;
 } 
 
 void GLES2SpriteBatch::end()
