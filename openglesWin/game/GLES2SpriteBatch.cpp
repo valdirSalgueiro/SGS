@@ -17,6 +17,7 @@ const char* strSpriteBatchFragmentShaderColorMultiplty =
 	uniform sampler2D sampler2d;
 	varying lowp vec4 vertexColor;
 	varying lowp vec2 texCoord;
+	varying mediump vec4 colorAdvanced;
 
 	void main (void)
 	{
@@ -28,8 +29,10 @@ const char* strSpriteBatchVertexShaderColorMultiply =
 	attribute highp vec3 vertex;
 	uniform mediump mat4 projMatrix;
 	uniform mediump mat4 im[16];        // input
+	uniform mediump vec4 colorAdvancedInput;       
 	varying mediump vec2 texCoord;
 	varying mediump vec4 vertexColor;
+	varying mediump vec4 colorAdvanced;
 
 	void main(void)
 	{
@@ -38,6 +41,7 @@ const char* strSpriteBatchVertexShaderColorMultiply =
 	gl_Position = vec4(transVertex,1,1) * projMatrix;
 	vertexColor = vec4( thisim[3][0], thisim[3][1], thisim[3][2], thisim[3][3] );
 	texCoord = (vertex.xy + vec2(0.5, 0.5)) * vec2(thisim[1][2], thisim[1][3]) + vec2(thisim[0][2], thisim[0][3]);
+	colorAdvanced = colorAdvancedInput;
 	});
 
 /*
@@ -48,6 +52,7 @@ const char* strSpriteBatchFragmentShaderAlpha =
 	uniform sampler2D sampler2d;
 	varying lowp vec4 vertexColor;
 	varying lowp vec2 texCoord;
+	varying mediump vec4 colorAdvanced;
 
 	void main (void)
 	{
@@ -59,7 +64,7 @@ const char* strSpriteBatchFragmentShaderColorNormal =
 	STRINGIFY(
 	uniform sampler2D sampler2d;
 	uniform sampler2D sampler2dNormal;
-	uniform mediump vec4 colorAdvanced;
+	
 	uniform mediump int hasTint;
 
 	uniform mediump vec3 LightPos;        //light position, normalized
@@ -69,6 +74,7 @@ const char* strSpriteBatchFragmentShaderColorNormal =
 
 	varying lowp vec4 vertexColor;
 	varying lowp vec2 texCoord;
+	varying mediump vec4 colorAdvanced;
 
 	void main (void)
 	{
@@ -108,7 +114,8 @@ const char* strSpriteBatchFragmentShaderColorNormal =
 		lowp vec3 Ambient = AmbientColor.rgb * AmbientColor.a;
 	
 		//calculate attenuation
-		lowp float Attenuation = 1.0 / ( Falloff.x + (Falloff.y*D) + (Falloff.z*D*D) );
+		//lowp float Attenuation = 1.0 / ( Falloff.x + (Falloff.y*D) + (Falloff.z*D*D) );
+		lowp float Attenuation = 1.0 / D;
 	
 		//the calculation which brings it all together
 		lowp vec3 Intensity = Ambient + Diffuse * Attenuation;
@@ -121,14 +128,15 @@ const char* strSpriteBatchFragmentShaderColorNormal =
 const char* strSpriteBatchFragmentShaderColorAdvanced =
 	STRINGIFY(
 	uniform sampler2D sampler2d;
-	uniform mediump vec4 colorAdvanced;
 
 	varying lowp vec4 vertexColor;
 	varying lowp vec2 texCoord;
+	varying mediump vec4 colorAdvanced;
 
 	void main (void)
 	{
 	lowp vec4 colorFinal = texture2D(sampler2d, texCoord) + colorAdvanced;
+	//lowp vec4 colorFinal = texture2D(sampler2d, texCoord);
 
 	gl_FragColor = colorFinal;
 	});
@@ -325,7 +333,7 @@ GLES2SpriteBatch::GLES2SpriteBatch(int w, int h ) : SpriteBatch(w,h)
 		samplerLocation[f] = glGetUniformLocation(program[f], "sampler2d");
 		inputMatrixLocation[f] = glGetUniformLocation(program[f], "im");
 		projmLocation[f] = glGetUniformLocation(program[f], "projMatrix");
-		colorLocation[f] = glGetUniformLocation(program[f], "colorAdvanced");
+		colorLocation[f] = glGetUniformLocation(program[f], "colorAdvancedInput");
 	}
 
 
@@ -338,7 +346,8 @@ GLES2SpriteBatch::GLES2SpriteBatch(int w, int h ) : SpriteBatch(w,h)
 	GLfloat *tempVertices = new GLfloat[ 3 * 6 * BATCH_SIZE];
 	for (int f=0; f<BATCH_SIZE; f++) {
 		memcpy( tempVertices+f*3*6, vertices, 3*6*sizeof(GLfloat ));
-		for (int g=0; g<6; g++) tempVertices[ f*3*6+2+g*3 ] = f;            // mark the index for each triangle
+		for (int g=0; g<6; g++) 
+			tempVertices[ f*3*6+2+g*3 ] = f;            // mark the index for each triangle
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo );
@@ -350,6 +359,8 @@ GLES2SpriteBatch::GLES2SpriteBatch(int w, int h ) : SpriteBatch(w,h)
 	glBufferData(GL_ARRAY_BUFFER, 4*sizeof(GLfloat)*3, quad, GL_STATIC_DRAW );
 
 	delete [] tempVertices;
+
+	glClearColor(0,0,0,0);
 
 }
 
@@ -504,7 +515,7 @@ void GLES2SpriteBatch::flushSprites()
 
 	glUniformMatrix4fv(inputMatrixLocation[currentProgram], batchCounter,GL_FALSE, inputMatrixTemp );
 	if(colorLocation[currentProgram]<10)//melhorar
-		glUniform4fv(colorLocation[currentProgram],batchCounter,colorTemp);
+		glUniform4fv(colorLocation[currentProgram],1,colorTemp);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6*batchCounter);
 
@@ -545,9 +556,6 @@ void GLES2SpriteBatch::draw ( SpriteDrawInfo *sdi, int spriteCount )
 		memcpy( batchCollection + batchCounter, i, sizeof( SpriteDrawInfo ) );
 		batchCounter++;
 		if (batchCounter>=BATCH_SIZE) 
-			flushSprites();
-
-		if(sdi->effect & COLOR_ADVANCED)
 			flushSprites();
 
 		i++;

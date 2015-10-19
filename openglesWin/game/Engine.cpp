@@ -857,6 +857,7 @@ void Engine::render(float time){
 
 		player->render(time);
 
+		//startBloom();
 		std::vector<Animation*>::iterator iter = animations.begin();
 		while (iter != animations.end())
 		{
@@ -874,6 +875,7 @@ void Engine::render(float time){
 			}
 			iter++;
 		}
+		//endBloom();
 
 		glSprite(nuvemX,267,GL2D_NO_SCALE,nuvem1,0,0,1.0f,1.0f);
 
